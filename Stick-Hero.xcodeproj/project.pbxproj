@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		359E75562E1F61D900E27DDF /* KiteGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359E75552E1F61D900E27DDF /* KiteGameScene.swift */; };
 		730ED6DE1B3BA3DA0041F888 /* touch_mid.wav in Resources */ = {isa = PBXBuildFile; fileRef = 730ED6DD1B3BA3DA0041F888 /* touch_mid.wav */; };
 		730ED6E01B3BA6FD0041F888 /* Defined.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730ED6DF1B3BA6FD0041F888 /* Defined.swift */; };
 		731F6F4A1B3D001100B8D89A /* button_retry_up.png in Resources */ = {isa = PBXBuildFile; fileRef = 731F6F481B3D001100B8D89A /* button_retry_up.png */; };
@@ -33,6 +34,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		359E75552E1F61D900E27DDF /* KiteGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KiteGameScene.swift; sourceTree = "<group>"; };
 		730ED6DD1B3BA3DA0041F888 /* touch_mid.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = touch_mid.wav; sourceTree = "<group>"; };
 		730ED6DF1B3BA6FD0041F888 /* Defined.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defined.swift; sourceTree = "<group>"; };
 		731F6F481B3D001100B8D89A /* button_retry_up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_retry_up.png; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				733263E61B33C68D003A3B2F /* StickHeroGameScene.swift */,
+				359E75552E1F61D900E27DDF /* KiteGameScene.swift */,
 				73DBBA9D1B39377D0050C4EF /* Tools.swift */,
 				730ED6DF1B3BA6FD0041F888 /* Defined.swift */,
 			);
@@ -201,7 +204,7 @@
 				TargetAttributes = {
 					73B7AD561B33BEC400115CAD = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 2X7R4W3Y3Q;
+						DevelopmentTeam = KRVCGJ5BFB;
 						LastSwiftMigration = 0900;
 					};
 				};
@@ -211,6 +214,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -260,6 +264,7 @@
 				73B7AD611B33BEC400115CAD /* GameViewController.swift in Sources */,
 				733263E71B33C68D003A3B2F /* StickHeroGameScene.swift in Sources */,
 				73B7AD5B1B33BEC400115CAD /* AppDelegate.swift in Sources */,
+				359E75562E1F61D900E27DDF /* KiteGameScene.swift in Sources */,
 				730ED6E01B3BA6FD0041F888 /* Defined.swift in Sources */,
 				73DBBA9E1B39377D0050C4EF /* Tools.swift in Sources */,
 			);
@@ -391,7 +396,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 2X7R4W3Y3Q;
+				DEVELOPMENT_TEAM = KRVCGJ5BFB;
 				INFOPLIST_FILE = "Stick-Hero/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "koofrank.ios.Stick-Hero";
@@ -405,7 +410,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 2X7R4W3Y3Q;
+				DEVELOPMENT_TEAM = KRVCGJ5BFB;
 				INFOPLIST_FILE = "Stick-Hero/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "koofrank.ios.Stick-Hero";

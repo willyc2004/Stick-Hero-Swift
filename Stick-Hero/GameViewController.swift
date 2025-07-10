@@ -16,21 +16,13 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let scene = StickHeroGameScene(size:CGSize(width: DefinedScreenWidth, height: DefinedScreenHeight))
-        
-        // Configure the view.
         let skView = self.view as! SKView
-//        skView.showsFPS = true
-//        skView.showsNodeCount = true
-        
-        /* Sprite Kit applies additional optimizations to improve rendering performance */
+        let sceneSize = skView.bounds.size
+        let scene = KiteGameScene(size: sceneSize)
+        scene.scaleMode = .resizeFill
         skView.ignoresSiblingOrder = true
-        
-        /* Set the scale mode to scale to fit the window */
-        scene.scaleMode = .aspectFill
-        
+        scene.scaleMode = .resizeFill
         skView.presentScene(scene)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -61,7 +53,7 @@ class GameViewController: UIViewController {
     }
 
     override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
-        return .portrait
+        return .landscape
     }
 
     override var prefersStatusBarHidden : Bool {
