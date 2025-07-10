@@ -33,14 +33,21 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     let boatWidth: CGFloat = 80
     let boatHeight: CGFloat = 30
     let kiteSize: CGFloat = 30
-    let kiteSpeed: CGFloat = 300
     let gravity: CGFloat = 400
     let obstacleWidth: CGFloat = 40
     let obstacleHeight: CGFloat = 40
     let charmSize: CGFloat = 24
-    let obstacleInterval: TimeInterval = 1.2
+    let baseObstacleInterval: TimeInterval = 1.2
+    let minObstacleInterval: TimeInterval = 0.4
     let charmInterval: TimeInterval = 2.5
-    let scrollSpeed: CGFloat = 200
+    var baseScrollSpeed: CGFloat = 200
+    var baseKiteSpeed: CGFloat = 300
+    var scrollSpeed: CGFloat = 200
+    var kiteSpeed: CGFloat = 300
+    let speedIncreasePerStep: CGFloat = 40
+    let kiteSpeedIncreasePerStep: CGFloat = 60
+    let scoreStep: CGFloat = 50
+    var lastSpeedStep: Int = 0
     
     var highScore: CGFloat {
         get { CGFloat(UserDefaults.standard.float(forKey: "highScore")) }
@@ -146,6 +153,17 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         }
         lastUpdateTime = currentTime
         
+        // Progressive difficulty: increase speed every 50 score
+        let currentStep = Int(score / scoreStep)
+        if currentStep > lastSpeedStep {
+            lastSpeedStep = currentStep
+            scrollSpeed = baseScrollSpeed + CGFloat(currentStep) * speedIncreasePerStep
+            kiteSpeed = baseKiteSpeed + CGFloat(currentStep) * kiteSpeedIncreasePerStep
+        }
+        // Dynamically adjust obstacle interval based on scrollSpeed
+        let speedFactor = scrollSpeed / baseScrollSpeed
+        let dynamicObstacleInterval = max(baseObstacleInterval / Double(speedFactor), minObstacleInterval)
+        
         // Move obstacles and charms
         for node in children {
             if node.name == "obstacle" || node.name == "charm" {
@@ -168,7 +186,7 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         // Spawn obstacles
-        if currentTime - lastObstacleSpawn > obstacleInterval {
+        if currentTime - lastObstacleSpawn > dynamicObstacleInterval {
             spawnObstacle()
             lastObstacleSpawn = currentTime
         }
@@ -364,6 +382,10 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         lastUpdateTime = 0
         gameOverLabel = nil
         restartLabel = nil
+        // Reset speeds
+        scrollSpeed = baseScrollSpeed
+        kiteSpeed = baseKiteSpeed
+        lastSpeedStep = 0
         setupBoatAndKite()
         setupLabels()
     }
