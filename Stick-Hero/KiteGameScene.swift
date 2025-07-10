@@ -42,6 +42,15 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     let charmInterval: TimeInterval = 2.5
     let scrollSpeed: CGFloat = 200
     
+    var highScore: CGFloat {
+        get { CGFloat(UserDefaults.standard.float(forKey: "highScore")) }
+        set { UserDefaults.standard.set(Float(newValue), forKey: "highScore") }
+    }
+    var totalCharms: Int {
+        get { UserDefaults.standard.integer(forKey: "totalCharms") }
+        set { UserDefaults.standard.set(newValue, forKey: "totalCharms") }
+    }
+    
     // MARK: - Scene Setup
     override func didMove(to view: SKView) {
         backgroundColor = .cyan
@@ -194,13 +203,17 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Spawning
     func spawnObstacle() {
-        // Spawn obstacles from the top of the boat to the top of the screen
+        // Randomly decide between single bird or formation
+        let formationChance = 0.4 // 40% chance for formation
+        if CGFloat.random(in: 0...1) < formationChance {
+            spawnBirdFormation()
+            return
+        }
+        // Single bird (circle)
         let minY = boat.position.y + boatHeight/2 + obstacleHeight/2
         let maxY = size.height - obstacleHeight/2 - 24
         let y = CGFloat.random(in: minY ... maxY)
-        // Bird (circle)
-        let node: SKShapeNode
-        node = SKShapeNode(circleOfRadius: obstacleWidth/2)
+        let node = SKShapeNode(circleOfRadius: obstacleWidth/2)
         node.fillColor = .black
         node.position = CGPoint(x: size.width + 60, y: y)
         node.name = "obstacle"
@@ -211,9 +224,61 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         node.physicsBody?.collisionBitMask = 0
         addChild(node)
     }
-    
+
+    func spawnBirdFormation() {
+        // Formation types: V, line
+        let formationType = Int.random(in: 0...1)
+        let minY = boat.position.y + boatHeight/2 + obstacleHeight/2
+        let maxY = size.height - obstacleHeight/2 - 24
+        let baseY = CGFloat.random(in: minY + 60 ... maxY - 60)
+        let count = Int.random(in: 3...5)
+        let ySpacing: CGFloat = 48
+        let startX = size.width + 60
+        for i in 0..<count {
+            let node = SKShapeNode(circleOfRadius: obstacleWidth/2)
+            node.fillColor = .black
+            node.name = "obstacle"
+            node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacleWidth, height: obstacleHeight))
+            node.physicsBody?.isDynamic = false
+            node.physicsBody?.categoryBitMask = obstacleCategory
+            node.physicsBody?.contactTestBitMask = kiteCategory
+            node.physicsBody?.collisionBitMask = 0
+            var y: CGFloat = baseY
+            let x: CGFloat = startX // All birds in the formation start at the same x
+            if formationType == 0 { // V formation
+                let mid = count / 2
+                y += CGFloat(abs(i - mid)) * ySpacing * (i < mid ? 1 : -1)
+            } else { // line
+                y += CGFloat(i - count/2) * ySpacing
+            }
+            node.position = CGPoint(x: x, y: y)
+            addChild(node)
+        }
+    }
+
     func spawnCharm() {
-        let y = CGFloat.random(in: boat.position.y + 100 ... size.height - 60)
+        // Prevent charm from overlapping with obstacles
+        let minY = boat.position.y + boatHeight/2 + charmSize/2
+        let maxY = size.height - charmSize/2 - 24
+        let maxTries = 10
+        var y: CGFloat = 0
+        var valid = false
+        for _ in 0..<maxTries {
+            y = CGFloat.random(in: minY ... maxY)
+            let charmFrame = CGRect(x: size.width + 60 - charmSize/2, y: y - charmSize/2, width: charmSize, height: charmSize)
+            var overlap = false
+            for node in children where node.name == "obstacle" {
+                if node.frame.intersects(charmFrame) {
+                    overlap = true
+                    break
+                }
+            }
+            if !overlap {
+                valid = true
+                break
+            }
+        }
+        if !valid { return } // Give up if can't find a spot
         let charm = SKShapeNode(circleOfRadius: charmSize/2)
         charm.fillColor = .systemPink
         charm.strokeColor = .magenta
@@ -247,6 +312,13 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     
     func gameOver() {
         isGameOver = true
+        // Update high score if needed
+        if score > highScore {
+            highScore = score
+        }
+        // Update total charms
+        totalCharms += charmCount
+        // Game Over label
         gameOverLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
         gameOverLabel?.fontSize = 40
         gameOverLabel?.fontColor = .red
@@ -255,11 +327,25 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         if let label = gameOverLabel {
             addChild(label)
         }
+        // High Score label
+        let highScoreLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        highScoreLabel.fontSize = 28
+        highScoreLabel.fontColor = .black
+        highScoreLabel.position = CGPoint(x: size.width/2, y: size.height/2 - 40)
+        highScoreLabel.text = String(format: "High Score: %.0f", highScore)
+        addChild(highScoreLabel)
+        // Total Charms label
+        let totalCharmsLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
+        totalCharmsLabel.fontSize = 24
+        totalCharmsLabel.fontColor = .systemPink
+        totalCharmsLabel.position = CGPoint(x: size.width/2, y: size.height/2 - 80)
+        totalCharmsLabel.text = "Total Charms: \(totalCharms)"
+        addChild(totalCharmsLabel)
         // Add restart button
         restartLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
         restartLabel?.fontSize = 32
         restartLabel?.fontColor = .blue
-        restartLabel?.position = CGPoint(x: size.width/2, y: size.height/2 - 60)
+        restartLabel?.position = CGPoint(x: size.width/2, y: size.height/2 - 140)
         restartLabel?.text = "Restart"
         restartLabel?.name = "restartButton"
         if let restart = restartLabel {
