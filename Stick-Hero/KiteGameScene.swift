@@ -7,7 +7,7 @@
 //
 
 import SpriteKit
-import GameplayKit
+//import GameplayKit
 
 class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Nodes
@@ -33,21 +33,22 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
     let boatWidth: CGFloat = 80
     let boatHeight: CGFloat = 30
     let kiteSize: CGFloat = 30
-    let gravity: CGFloat = 400
+    let kiteSpeed: CGFloat = 300
     let obstacleWidth: CGFloat = 40
     let obstacleHeight: CGFloat = 40
     let charmSize: CGFloat = 24
     let baseObstacleInterval: TimeInterval = 1.2
-    let minObstacleInterval: TimeInterval = 0.4
+    let minObstacleInterval: TimeInterval = 0.6
     let charmInterval: TimeInterval = 2.5
-    var baseScrollSpeed: CGFloat = 200
-    var baseKiteSpeed: CGFloat = 300
-    var scrollSpeed: CGFloat = 200
-    var kiteSpeed: CGFloat = 300
-    let speedIncreasePerStep: CGFloat = 40
-    let kiteSpeedIncreasePerStep: CGFloat = 60
+    let baseScrollSpeed: CGFloat = 200
+    let speedIncreasePerStep: CGFloat = 15
     let scoreStep: CGFloat = 50
+    let maxDifficultyScore: CGFloat = 500
+    
+    // MARK: - Game Variables
+    var scrollSpeed: CGFloat = 200
     var lastSpeedStep: Int = 0
+    var lastUpdateTime: TimeInterval = 0
     
     var highScore: CGFloat {
         get { CGFloat(UserDefaults.standard.float(forKey: "highScore")) }
@@ -141,8 +142,6 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         isTouching = false
     }
     
-    var lastUpdateTime: TimeInterval = 0
-    
     // MARK: - Game Loop
     override func update(_ currentTime: TimeInterval) {
         guard !isGameOver else { return }
@@ -153,16 +152,16 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         }
         lastUpdateTime = currentTime
         
-        // Progressive difficulty: increase speed every 50 score
-        let currentStep = Int(score / scoreStep)
+        // Progressive difficulty: increase speed every 50 score, capped at 500
+        let cappedScore = min(score, maxDifficultyScore)
+        let currentStep = Int(cappedScore / scoreStep)
         if currentStep > lastSpeedStep {
             lastSpeedStep = currentStep
             scrollSpeed = baseScrollSpeed + CGFloat(currentStep) * speedIncreasePerStep
-            kiteSpeed = baseKiteSpeed + CGFloat(currentStep) * kiteSpeedIncreasePerStep
         }
-        // Dynamically adjust obstacle interval based on scrollSpeed
+        // Dynamically adjust obstacle interval based on scrollSpeed (less aggressive)
         let speedFactor = scrollSpeed / baseScrollSpeed
-        let dynamicObstacleInterval = max(baseObstacleInterval / Double(speedFactor), minObstacleInterval)
+        let dynamicObstacleInterval = max(baseObstacleInterval / (Double(speedFactor) * 0.7), minObstacleInterval)
         
         // Move obstacles and charms
         for node in children {
@@ -227,11 +226,11 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
             spawnBirdFormation()
             return
         }
-        // Single bird (circle)
+        // Single bird (rectangle)
         let minY = boat.position.y + boatHeight/2 + obstacleHeight/2
         let maxY = size.height - obstacleHeight/2 - 24
         let y = CGFloat.random(in: minY ... maxY)
-        let node = SKShapeNode(circleOfRadius: obstacleWidth/2)
+        let node = SKShapeNode(rectOf: CGSize(width: obstacleWidth, height: obstacleHeight), cornerRadius: 8)
         node.fillColor = .black
         node.position = CGPoint(x: size.width + 60, y: y)
         node.name = "obstacle"
@@ -253,7 +252,7 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         let ySpacing: CGFloat = 48
         let startX = size.width + 60
         for i in 0..<count {
-            let node = SKShapeNode(circleOfRadius: obstacleWidth/2)
+            let node = SKShapeNode(rectOf: CGSize(width: obstacleWidth, height: obstacleHeight), cornerRadius: 8)
             node.fillColor = .black
             node.name = "obstacle"
             node.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: obstacleWidth, height: obstacleHeight))
@@ -384,7 +383,6 @@ class KiteGameScene: SKScene, SKPhysicsContactDelegate {
         restartLabel = nil
         // Reset speeds
         scrollSpeed = baseScrollSpeed
-        kiteSpeed = baseKiteSpeed
         lastSpeedStep = 0
         setupBoatAndKite()
         setupLabels()
